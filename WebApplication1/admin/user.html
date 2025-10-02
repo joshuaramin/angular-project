@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="tattooVaultApp" ng-controller="UserController">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TattooVault - User Management</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --purple-dark: #7C3AED;
+            --purple-light: #A78BFA;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --dark-card: #111111;
+            --dark-border: #333333;
+            --dark-text: #ffffff;
+            --dark-muted: #888888;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, var(--darker-bg) 100%);
+            color: var(--dark-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-bottom: 1px solid var(--dark-border);
+            padding: 1rem 0;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--purple-dark) 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+            .btn-purple:hover {
+                background: var(--purple-dark);
+            }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .users-table-container {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="max-w-6xl mx-auto flex justify-between items-center px-4">
+            <div>
+                <h1 class="text-xl font-bold text-purple-400">TattooVault Admin</h1>
+                <p class="text-gray-400 text-sm">User Management Dashboard</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="#/dashboard" class="btn-purple">Dashboard</a>
+                <button ng-click="logout()" class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container max-w-6xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">User Management</h1>
+                <p class="text-gray-400">Manage all system users and their permissions</p>
+            </div>
+            <a href="#/create-user" class="btn-purple"><i class="fas fa-plus-circle"></i> Create User</a>
+        </div>
+
+        <!-- Success message -->
+        <div class="alert-success mb-4 p-4 bg-green-800 text-green-200 rounded" ng-if="successMessage">
+            <i class="fas fa-check-circle"></i> {{ successMessage }}
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <p class="text-2xl font-bold">{{ users.length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Users</h3>
+                <p class="text-2xl font-bold">{{ activeUsers }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Inactive Users</h3>
+                <p class="text-2xl font-bold">{{ inactiveUsers }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Admins</h3>
+                <p class="text-2xl font-bold">{{ adminUsers }}</p>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="users-table-container">
+            <div class="flex justify-between items-center p-4 bg-gray-900 border-b border-gray-700">
+                <h2 class="text-purple-400 font-semibold">User List</h2>
+                <div class="flex items-center gap-2">
+                    <input ng-model="searchText" class="bg-gray-800 border border-gray-600 text-white p-2 rounded" placeholder="Search users...">
+                    <button ng-click="searchText=''" class="text-gray-300"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <table class="w-full text-left">
+                <thead class="bg-gray-800 text-purple-300">
+                    <tr>
+                        <th class="p-3">ID</th>
+                        <th class="p-3">Username</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Full Name</th>
+                        <th class="p-3">Role</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Created</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="user in users | filter:searchText" class="border-b border-gray-700">
+                        <td class="p-3">#{{ user.Id }}</td>
+                        <td class="p-3">{{ user.Username }}</td>
+                        <td class="p-3">{{ user.Email }}</td>
+                        <td class="p-3">{{ user.FirstName }} {{ user.LastName }}</td>
+                        <td class="p-3">{{ user.Role }}</td>
+                        <td class="p-3">
+                            <span ng-if="user.IsActive" class="text-green-400">Active</span>
+                            <span ng-if="!user.IsActive" class="text-red-400">Inactive</span>
+                        </td>
+                        <td class="p-3">{{ user.CreatedAt | date:'MMM dd, yyyy' }}</td>
+                        <td class="p-3 flex gap-2">
+                            <a href="#/edit-user/{{ user.Id }}" class="text-blue-400"><i class="fas fa-edit"></i></a>
+                            <button ng-click="toggleUserStatus(user)" class="text-yellow-400">
+                                <i class="fas" ng-class="{'fa-user-slash': user.IsActive, 'fa-user-check': !user.IsActive}"></i>
+                            </button>
+                            <button ng-click="deleteUser(user.Id)" class="text-red-400"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module("tattooVaultApp", []);
+        app.controller("UserController", function ($scope) {
+            $scope.users = [
+                { Id: 1, Username: "jdoe", Email: "jdoe@mail.com", FirstName: "John", LastName: "Doe", Role: "Admin", IsActive: true, CreatedAt: new Date() },
+                { Id: 2, Username: "asmith", Email: "asmith@mail.com", FirstName: "Anna", LastName: "Smith", Role: "User", IsActive: false, CreatedAt: new Date() }
+            ];
+
+            // stats
+            $scope.activeUsers = $scope.users.filter(u => u.IsActive).length;
+            $scope.inactiveUsers = $scope.users.filter(u => !u.IsActive).length;
+            $scope.adminUsers = $scope.users.filter(u => u.Role === 'Admin').length;
+
+            $scope.successMessage = "Users loaded successfully.";
+
+            $scope.logout = function () {
+                alert("Logging out...");
+            };
+
+            $scope.toggleUserStatus = function (user) {
+                user.IsActive = !user.IsActive;
+                $scope.activeUsers = $scope.users.filter(u => u.IsActive).length;
+                $scope.inactiveUsers = $scope.users.filter(u => !u.IsActive).length;
+            };
+
+            $scope.deleteUser = function (id) {
+                $scope.users = $scope.users.filter(u => u.Id !== id);
+                $scope.activeUsers = $scope.users.filter(u => u.IsActive).length;
+                $scope.inactiveUsers = $scope.users.filter(u => !u.IsActive).length;
+                $scope.adminUsers = $scope.users.filter(u => u.Role === 'Admin').length;
+            };
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="tattooVaultApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - TattooVault</title>
+
+    <!-- Tailwind for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body ng-controller="EditUserController as vm">
+
+    <div class="container">
+        <h2 class="text-2xl font-bold mb-4">Edit User</h2>
+        <hr class="mb-4" />
+
+        <!-- Success message -->
+        <div class="p-3 mb-4 rounded bg-green-700 text-white" ng-if="vm.successMessage">
+            {{ vm.successMessage }}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <form name="editUserForm" ng-submit="vm.saveUser()" novalidate class="space-y-4">
+
+                    <input type="hidden" ng-model="vm.user.id" />
+
+                    <div class="form-group">
+                        <label class="block">First Name</label>
+                        <input type="text" ng-model="vm.user.firstName" class="form-control w-full text-black px-2 py-1 rounded" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Last Name</label>
+                        <input type="text" ng-model="vm.user.lastName" class="form-control w-full text-black px-2 py-1 rounded" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Username</label>
+                        <input type="text" ng-model="vm.user.username" class="form-control w-full text-black px-2 py-1 rounded" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Email</label>
+                        <input type="email" ng-model="vm.user.email" class="form-control w-full text-black px-2 py-1 rounded" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Phone</label>
+                        <input type="text" ng-model="vm.user.phone" class="form-control w-full text-black px-2 py-1 rounded" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Birthday</label>
+                        <input type="date" ng-model="vm.user.birthday" class="form-control w-full text-black px-2 py-1 rounded" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Role</label>
+                        <select ng-model="vm.user.role" class="form-control w-full text-black px-2 py-1 rounded">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Moderator">Moderator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block">Password (leave blank to keep current)</label>
+                        <input type="password" ng-model="vm.user.password" placeholder="Enter new password or leave blank"
+                               class="form-control w-full text-black px-2 py-1 rounded" />
+                    </div>
+
+                    <div class="form-check flex items-center space-x-2">
+                        <input type="checkbox" ng-model="vm.user.isActive" class="form-check-input" />
+                        <label class="form-check-label">Active User</label>
+                    </div>
+
+                    <div class="form-group flex space-x-4">
+                        <button type="submit" class="btn btn-primary bg-purple-600 px-4 py-2 rounded text-white">
+                            Save Changes
+                        </button>
+                        <a href="#!/users" class="btn btn-secondary bg-gray-700 px-4 py-2 rounded text-white">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var app = angular.module("tattooVaultApp", []);
+
+    app.controller("EditUserController", function($http, $location) {
+      var vm = this;
+      vm.user = {};
+
+      // Simulate loading user data (replace with your API call)
+      vm.user = {
+        id: 1,
+        firstName: "John",
+        lastName: "Doe",
+        username: "johndoe",
+        email: "john@example.com",
+        phone: "123456789",
+        birthday: "1990-01-01",
+        role: "User",
+        password: "",
+        isActive: true
+      };
+
+      vm.saveUser = function() {
+        // Replace with your PUT API
+        $http.put("/api/users/" + vm.user.id, vm.user).then(function(response) {
+          vm.successMessage = "User updated successfully!";
+          // redirect if needed:
+          // $location.path("/users");
+        });
+      };
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html ng-app="tattooVaultApp">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>My Profile - TattooVault</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100" ng-controller="ProfileController">
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">My Profile</h1>
+
+        <!-- Success Message -->
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+             ng-if="successMessage">
+            {{ successMessage }}
+        </div>
+
+        <!-- Profile Form -->
+        <form ng-submit="updateProfile()" class="max-w-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">First Name</label>
+                    <input type="text" ng-model="user.FirstName"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <input type="text" ng-model="user.LastName"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" ng-model="user.Username"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" ng-model="user.Email"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" readonly />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="text" ng-model="user.Phone"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Birthday</label>
+                    <input type="date" ng-model="user.Birthday"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        New Password (leave blank to keep current)
+                    </label>
+                    <input type="password" ng-model="user.Password"
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+                    Update Profile
+                </button>
+                <a href="#!/dashboard" class="ml-4 text-gray-600">Back to Dashboard</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        angular.module('tattooVaultApp', [])
+            .controller('ProfileController', ['$scope', '$http', function ($scope, $http) {
+                // Example user data (replace with API call to load current user)
+                $scope.user = {
+                    FirstName: "John",
+                    LastName: "Doe",
+                    Username: "johndoe",
+                    Email: "johndoe@example.com",
+                    Phone: "09123456789",
+                    Birthday: "1995-01-01",
+                    Password: ""
+                };
+
+                $scope.successMessage = "";
+
+                // Update profile (send to backend)
+                $scope.updateProfile = function () {
+                    $http.post('/api/profile/update', $scope.user)
+                        .then(function (response) {
+                            $scope.successMessage = "Profile updated successfully!";
+                        }, function (error) {
+                            alert("Error updating profile.");
+                        });
+                };
+            }]);
+    </script>
+</body>
+</html>

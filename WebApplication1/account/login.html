@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html ng-app="tattooVaultApp">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login - TattooVault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+    <style>
+        body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: black !important;
+            overflow: hidden !important;
+        }
+
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1f2937 0%, #000 50%, #1f2937 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: slideInFromRight 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInFromRight {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .login-form {
+            background: rgba(31, 41, 55, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid #4b5563;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 28rem;
+        }
+
+        .slide-out-left {
+            animation: slideOutToLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideOutToLeft {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body ng-controller="LoginController">
+
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer" ng-class="{'slide-out-left': isSlidingOut}">
+        <div class="login-form">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
+                <p class="text-gray-400">Sign in to your ink collection</p>
+            </div>
+
+            <!-- AngularJS Form -->
+            <form name="loginForm" ng-submit="login()" novalidate class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email"
+                           name="email"
+                           ng-model="user.email"
+                           required
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white
+                                  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                           placeholder="Enter your email">
+                    <span class="text-red-400 text-sm mt-1"
+                          ng-show="loginForm.email.$touched && loginForm.email.$invalid">
+                        Please enter a valid email.
+                    </span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password"
+                           name="password"
+                           ng-model="user.password"
+                           required
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white
+                                  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                           placeholder="Enter your password">
+                    <span class="text-red-400 text-sm mt-1"
+                          ng-show="loginForm.password.$touched && loginForm.password.$invalid">
+                        Password is required.
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" ng-model="user.rememberMe"
+                               class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500">
+                        <label class="ml-2 text-sm text-gray-300">Remember me</label>
+                    </div>
+
+                    <a href="#" class="text-sm text-purple-400 hover:text-purple-300 transition-colors">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit"
+                        ng-disabled="loading"
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg
+                               font-medium hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2
+                               focus:ring-purple-500 transition-all transform hover:scale-105">
+                    {{ loading ? 'Signing In...' : 'Sign In' }}
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">
+                    Don't have an account?
+                    <a href="" ng-click="slideToRegister()" class="text-purple-400 hover:text-purple-300 transition-colors font-medium">Sign up</a>
+                </p>
+            </div>
+
+            <!-- Validation summary -->
+            <div class="validation-summary mt-4 p-3 bg-red-900 bg-opacity-50 border border-red-700 rounded-lg text-red-300 text-sm"
+                 ng-show="errorMessage">
+                {{ errorMessage }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module("tattooVaultApp", []);
+
+        app.controller("LoginController", function ($scope, $timeout, $window) {
+            $scope.user = { email: "", password: "", rememberMe: false };
+            $scope.loading = false;
+            $scope.errorMessage = "";
+            $scope.isSlidingOut = false;
+
+            $scope.login = function () {
+                if ($scope.loginForm.$invalid) {
+                    $scope.errorMessage = "Please fix the errors before submitting.";
+                    return;
+                }
+
+                $scope.loading = true;
+                $scope.errorMessage = "";
+
+                // simulate API login call
+                $timeout(function () {
+                    if ($scope.user.email === "test@test.com" && $scope.user.password === "1234") {
+                        $window.location.href = "/"; // redirect after success
+                    } else {
+                        $scope.errorMessage = "Invalid email or password.";
+                        $scope.loading = false;
+                    }
+                }, 1500);
+            };
+
+            $scope.slideToRegister = function () {
+                $scope.isSlidingOut = true;
+                $timeout(function () {
+                    $window.location.href = "/account/register.html";
+                }, 600);
+            };
+        });
+    </script>
+</body>
+</html>

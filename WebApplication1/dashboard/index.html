@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html ng-app="tattooVaultApp">
+<head>
+    <meta charset="utf-8" />
+    <title>My Dashboard - TattooVault</title>
+    <meta name="viewport" content="width=device-width" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: black !important;
+        }
+
+        .dashboard-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1f2937 0%, #000 50%, #1f2937 100%);
+        }
+
+        .nav-gradient {
+            background: linear-gradient(90deg, #7c3aed 0%, #ec4899 100%);
+        }
+
+        .stats-card {
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid #4b5563;
+            transition: all 0.3s ease;
+        }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            }
+
+        .user-badge {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+        }
+    </style>
+</head>
+<body ng-controller="DashboardController">
+
+    <!-- Navigation -->
+    <nav class="nav-gradient shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-white">TattooVault</h1>
+                    <span class="ml-4 px-3 py-1 bg-blue-600 text-blue-100 text-sm font-bold rounded-full user-badge">
+                        USER DASHBOARD
+                    </span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span class="text-white">Welcome, {{ username }}!</span>
+                    <a href="#!/logout"
+                       class="text-white hover:text-gray-200 transition-colors bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Welcome Section -->
+            <div class="px-4 py-6 sm:px-0">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-white mb-4">My Tattoo Collection</h1>
+                    <p class="text-xl text-gray-300">Manage your personal tattoo portfolio</p>
+                </div>
+
+                <!-- User Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-rows-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-bold text-purple-400 mb-2">{{ totalTattoos }}</div>
+                        <div class="text-gray-300 text-lg">My Tattoos</div>
+                    </div>
+
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-bold text-green-400 mb-2">{{ favoriteTattoos }}</div>
+                        <div class="text-gray-300 text-lg">Favorites</div>
+                    </div>
+
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-bold text-blue-400 mb-2">{{ artistsCount }}</div>
+                        <div class="text-gray-300 text-lg">Artists</div>
+                    </div>
+
+                    <div class="stats-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-bold text-pink-400 mb-2">{{ collectionsCount }}</div>
+                        <div class="text-gray-300 text-lg">Collections</div>
+                    </div>
+                </div>
+
+                <!-- Recent Tattoos -->
+                <div class="stats-card rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-white">Recent Tattoos</h2>
+                        <a href="#!/tattoos" class="text-purple-400 hover:text-purple-300 text-sm font-semibold">
+                            View All Tattoos →
+                        </a>
+                    </div>
+
+                    <div class="text-gray-400 text-center py-8" ng-if="recentTattoos.length === 0">
+                        <div class="text-4xl mb-4">🎨</div>
+                        <p class="text-lg">No tattoos added yet</p>
+                        <a href="#!/tattoos/create"
+                           class="inline-block mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                            Add Your First Tattoo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    angular.module('tattooVaultApp', [])
+      .controller('DashboardController', ['$scope', '$interval', function($scope, $interval) {
+        $scope.username = "User";
+        $scope.totalTattoos = 0;
+        $scope.favoriteTattoos = 0;
+        $scope.artistsCount = 0;
+        $scope.collectionsCount = 0;
+        $scope.recentTattoos = []; // you can bind API results here
+
+        // Simple counter animation
+        function animateCounter(property, target) {
+          let current = 0;
+          const increment = target / 50;
+          const timer = $interval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              $interval.cancel(timer);
+            }
+            $scope[property] = Math.floor(current);
+          }, 40);
+        }
+
+        // Demo values (replace with $http call later)
+        setTimeout(() => {
+          animateCounter('totalTattoos', 10);
+          animateCounter('favoriteTattoos', 3);
+          animateCounter('artistsCount', 5);
+          animateCounter('collectionsCount', 2);
+        }, 500);
+      }]);
+    </script>
+</body>
+</html>

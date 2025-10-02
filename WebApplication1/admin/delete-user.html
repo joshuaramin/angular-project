@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="tattooVaultApp">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delete User - TattooVault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="app.js"></script>
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --purple-dark: #7C3AED;
+            --dark-bg: #0a0a0a;
+            --dark-card: #111111;
+            --dark-border: #333333;
+            --dark-text: #ffffff;
+            --dark-muted: #888888;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--dark-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-container {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .warning-icon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-danger:hover {
+                background: linear-gradient(135deg, #dc2626, #b91c1c);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--dark-border);
+            color: var(--dark-text);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-secondary:hover {
+                background: var(--dark-border);
+                transform: translateY(-2px);
+            }
+    </style>
+</head>
+<body ng-controller="DeleteUserController">
+
+    <div class="delete-container">
+        <div class="text-center">
+            <div class="warning-icon">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0
+                   00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </div>
+
+            <h1 class="text-2xl font-bold text-white mb-4">Delete User</h1>
+
+            <div class="bg-red-900 bg-opacity-20 border border-red-800 rounded-lg p-4 mb-6">
+                <p class="text-red-300 font-medium">Warning: This action cannot be undone!</p>
+            </div>
+
+            <!-- User Details -->
+            <div class="text-left bg-gray-900 rounded-lg p-4 mb-6" ng-if="user">
+                <h3 class="text-lg font-semibold text-white mb-3">User Details:</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Name:</span>
+                        <span class="text-white">{{user.firstName}} {{user.lastName}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Username:</span>
+                        <span class="text-white">{{user.username}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Email:</span>
+                        <span class="text-white">{{user.email}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Role:</span>
+                        <span class="text-white">{{user.role}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Status:</span>
+                        <span class="text-white">{{user.isActive ? 'Active' : 'Inactive'}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Created:</span>
+                        <span class="text-white">{{user.createdAt | date:'MMM dd, yyyy'}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Form -->
+            <form ng-submit="confirmDelete()" class="space-y-4">
+                <div class="bg-yellow-900 bg-opacity-20 border border-yellow-800 rounded-lg p-4">
+                    <p class="text-yellow-300 text-sm">
+                        <strong>Note:</strong> Deleting this user will permanently remove all their data from the system.
+                        This action cannot be reversed.
+                    </p>
+                </div>
+
+                <div class="flex space-x-4 justify-center">
+                    <button type="submit" class="btn-danger" ng-disabled="isDeleting">
+                        <span ng-if="!isDeleting">
+                            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0
+                         01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1
+                         0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Delete User
+                        </span>
+                        <span ng-if="isDeleting">
+                            <svg class="animate-spin w-4 h-4 mr-2 inline" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0
+                         5.373 0 12h4zm2 5.291A7.962
+                         7.962 0 014 12H0c0 3.042
+                         1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Deleting...
+                        </span>
+                    </button>
+
+                    <a href="#!/users" class="btn-secondary">
+                        <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const userEmail = '@Model.Email';
+            const confirmed = confirm(`Are you absolutely sure you want to delete user "${userEmail}"? This action cannot be undone.`);
+
+            if (!confirmed) {
+                e.preventDefault();
+            } else {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<svg class="animate-spin w-4 h-4 mr-2 inline" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Deleting...';
+                submitBtn.disabled = true;
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                window.location.href = '/Admin/Users';
+            }
+        });
+    </script>
+</body>
+</html>
